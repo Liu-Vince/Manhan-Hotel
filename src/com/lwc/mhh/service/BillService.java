@@ -18,22 +18,46 @@ public class BillService {
     private MenuService menuService = new MenuService();
     //定义DiningTableService属性
     private DiningTableService diningTableService = new DiningTableService();
-    public boolean orderMenu(int menuId,int nums,int diningTableId){
+
+    public boolean orderMenu(int menuId, int nums, int diningTableId) {
         //生成一个账单号,UUID
         String billID = UUID.randomUUID().toString();
 
         //将账单生成到bill表
         int update = billDAO.update("insert into bill values(null,?,?,?,?,?,now(),'未结账')",
                 billID, menuId, nums, menuService.getMenuById(menuId).getPrice() * nums, diningTableId);
-        if (update <= 0){
+        if (update <= 0) {
             return false;
         }
         //需要更新对应餐桌的状态
-        return diningTableService.updateDiningTableState(diningTableId,"就餐中");
+        return diningTableService.updateDiningTableState(diningTableId, "就餐中");
 
     }
+
     //返回所有的账单，提供给View调用
-    public List<Bill> list(){
+    public List<Bill> list() {
         return billDAO.queryMulti("select * from bill", Bill.class);
+    }
+
+    //查看某个餐桌是否有未结账的账单
+    public boolean hsaPayBillByDiningTableId(int diningTableId) {
+        Bill bill = billDAO.querySingle("select * from bill where diningTableId=? and state ='未结账' limit 0,1", Bill.class, diningTableId);
+        return bill != null;
+    }
+
+    //完成结账[如果餐桌存在并且该餐桌有未结账的账单]
+    public boolean payBill(int diningTableId, String payMode) {
+        //此处需要用事务解决(ThreradLocal)
+        //修改bill表
+        int update = billDAO.update("update bill set state=? where diningTableId=? and state='未结账'", payMode, diningTableId);
+        if (update <= 0) {
+            return false;
+        }
+        //修改diningTable表
+        //交给DiningTableService
+        if (!diningTableService.updateDiningTableToFree(diningTableId, "空")) {
+            return false;
+        }
+        return true;
     }
 }

@@ -28,12 +28,52 @@ public class MHHView {
     private DiningTableService diningTableService = new DiningTableService();
     private MenuService menuService = new MenuService();
     private BillService billService = new BillService();
+
     public static void main(String[] args) {
         new MHHView().mainMenu();
     }
 
+    //完成结账
+    public void payBill() {
+        System.out.println("===============结账服务===============");
+        System.out.println("请选择要结账的餐桌编号(-1退出): ");
+        int diningTableId = Utility.readInt();
+        if (diningTableId == -1) {
+            System.out.println("===============取消结账===============");
+            return;
+        }
+        //验证餐桌是否存在
+        DiningTable diningTableById = diningTableService.getDiningTableById(diningTableId);
+        if (diningTableById == null) {
+            System.out.println("===============结账餐桌不存在===============");
+            return;
+        }
+        //验证餐桌是否有需要结账的账单
+        if (!billService.hsaPayBillByDiningTableId(diningTableId)) {
+            System.out.println("===============该餐桌没有未结账账单===============");
+            return;
+        }
+        System.out.println("结账方式(现金/支付宝/微信)回车表示退出: ");
+        String payMode = Utility.readString(20, "");
+        if ("".equals(payMode)) {
+            System.out.println("===============取消结账===============");
+            return;
+        }
+        char key = Utility.readConfirmSelection();
+        if (key == 'Y') {
+            if (billService.payBill(diningTableId, payMode)) {
+                System.out.println("===============结账成功===============");
+            } else {
+                System.out.println("===============结账失败===============");
+            }
+        } else {
+            billService.payBill(diningTableId, payMode);
+            System.out.println("===============取消结账===============");
+        }
+    }
+
     //显示账单信息
-    public void listBill(){
+    public void listBill() {
         List<Bill> list = billService.list();
         System.out.println("\n编号\t\t菜品号\t\t菜品量\t\t金额\t\t桌号\t\t日期\t\t\t\t\t\t\t状态");
         for (Bill bill : list) {
@@ -43,49 +83,49 @@ public class MHHView {
     }
 
     //完成点餐
-    public void orderMenu(){
+    public void orderMenu() {
         System.out.println("===============点餐服务===============");
         System.out.println("请输入点餐的桌号(-1退出): ");
         int orderDiningTableId = Utility.readInt();
-        if (orderDiningTableId == -1){
+        if (orderDiningTableId == -1) {
             System.out.println("===============取消点餐===============");
             return;
         }
         System.out.println("请输入点餐的菜品号(-1退出): ");
         int orderMenuId = Utility.readInt();
-        if (orderMenuId == -1){
+        if (orderMenuId == -1) {
             System.out.println("===============取消点餐===============");
             return;
         }
         System.out.println("请输入点餐的菜品量(-1退出): ");
         int orderNums = Utility.readInt();
-        if (orderNums == -1){
+        if (orderNums == -1) {
             System.out.println("===============取消点餐===============");
             return;
         }
 
         //验证餐桌号是否存在
         DiningTable diningTableById = diningTableService.getDiningTableById(orderDiningTableId);
-        if(diningTableById == null){
+        if (diningTableById == null) {
             System.out.println("===============餐桌号不存在===============");
             return;
         }
         //验证菜品编号
         Menu menuById = menuService.getMenuById(orderMenuId);
-        if(menuById == null){
+        if (menuById == null) {
             System.out.println("===============菜品号不存在===============");
             return;
         }
         //点餐
-        if (billService.orderMenu(orderMenuId,orderNums,orderDiningTableId)) {
+        if (billService.orderMenu(orderMenuId, orderNums, orderDiningTableId)) {
             System.out.println("===============点餐成功===============");
-        }else {
+        } else {
             System.out.println("===============点餐失败===============");
         }
     }
 
     //显示所有菜品
-    public void listMenu(){
+    public void listMenu() {
         List<Menu> list = menuService.list();
         System.out.println("\n菜品编号\t\t菜品名\t\t类别\t\t价格");
         for (Menu menu : list) {
@@ -93,6 +133,7 @@ public class MHHView {
         }
         System.out.println("===============显示完毕===============");
     }
+
     //完成订座
     public void orderDiningTable() {
         System.out.println("===============预定餐桌===============");
@@ -190,7 +231,7 @@ public class MHHView {
                                     listBill();
                                     break;
                                 case "6":
-                                    System.out.println("结账");
+                                    payBill();
                                     break;
                                 case "9":
                                     loop = false;

@@ -33,4 +33,9 @@ public class DiningTableService {
         int update = diningTableDAO.update("update diningTable set state=? where id=?", state, id);
         return update>0;
     }
+    //提供方法, 将指定的餐桌修改为空闲状态
+    public boolean updateDiningTableToFree(int id, String state){
+        int update = diningTableDAO.update("update diningTable set state=?,orderName='',orderTel='' where id=?", state, id);
+        return update>0;
+    }
 }
