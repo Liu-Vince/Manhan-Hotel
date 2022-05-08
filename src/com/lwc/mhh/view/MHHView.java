@@ -1,9 +1,6 @@
 package com.lwc.mhh.view;
 
-import com.lwc.mhh.domain.Bill;
-import com.lwc.mhh.domain.DiningTable;
-import com.lwc.mhh.domain.Employee;
-import com.lwc.mhh.domain.Menu;
+import com.lwc.mhh.domain.*;
 import com.lwc.mhh.service.BillService;
 import com.lwc.mhh.service.DiningTableService;
 import com.lwc.mhh.service.EmployeeService;
@@ -72,16 +69,24 @@ public class MHHView {
         }
     }
 
+//    //显示账单信息
+//    public void listBill() {
+//        List<Bill> list = billService.list();
+//        System.out.println("\n编号\t\t菜品号\t\t菜品量\t\t金额\t\t桌号\t\t日期\t\t\t\t\t\t\t状态");
+//        for (Bill bill : list) {
+//            System.out.println(bill);
+//        }
+//        System.out.println("===============显示完毕===============");
+//    }
     //显示账单信息
     public void listBill() {
-        List<Bill> list = billService.list();
-        System.out.println("\n编号\t\t菜品号\t\t菜品量\t\t金额\t\t桌号\t\t日期\t\t\t\t\t\t\t状态");
-        for (Bill bill : list) {
+        List<MultiTableBean> list = billService.list2();
+        System.out.println("\n编号\t\t菜品号\t\t菜品量\t\t金额\t\t桌号\t\t日期\t\t\t\t\t\t\t状态\t\t菜品名\t\t价格");
+        for (MultiTableBean bill : list) {
             System.out.println(bill);
         }
         System.out.println("===============显示完毕===============");
     }
-
     //完成点餐
     public void orderMenu() {
         System.out.println("===============点餐服务===============");

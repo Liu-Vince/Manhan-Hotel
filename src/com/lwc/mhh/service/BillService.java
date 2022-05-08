@@ -1,7 +1,9 @@
 package com.lwc.mhh.service;
 
 import com.lwc.mhh.dao.BillDAO;
+import com.lwc.mhh.dao.MultiTableDAO;
 import com.lwc.mhh.domain.Bill;
+import com.lwc.mhh.domain.MultiTableBean;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,7 +20,7 @@ public class BillService {
     private MenuService menuService = new MenuService();
     //定义DiningTableService属性
     private DiningTableService diningTableService = new DiningTableService();
-
+    private MultiTableDAO multiTableDAO = new MultiTableDAO();
     public boolean orderMenu(int menuId, int nums, int diningTableId) {
         //生成一个账单号,UUID
         String billID = UUID.randomUUID().toString();
@@ -35,10 +37,14 @@ public class BillService {
     }
 
     //返回所有的账单，提供给View调用
-    public List<Bill> list() {
-        return billDAO.queryMulti("select * from bill", Bill.class);
+    public List<MultiTableBean> list2() {
+        return multiTableDAO.queryMulti("select bill.*, name,price from bill, menu where bill.menuId = menu.id",MultiTableBean.class);
     }
 
+//    //返回所有的账单，提供给View调用
+//    public List<Bill> list() {
+//        return billDAO.queryMulti("select * from bill", Bill.class);
+//    }
     //查看某个餐桌是否有未结账的账单
     public boolean hsaPayBillByDiningTableId(int diningTableId) {
         Bill bill = billDAO.querySingle("select * from bill where diningTableId=? and state ='未结账' limit 0,1", Bill.class, diningTableId);
